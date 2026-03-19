@@ -1,6 +1,9 @@
 class CalculationError(Exception):
-    # 電卓用のカスタム例外は後で作成
-    pass
+    def __init__(self, code: str, message: str, **context):
+        super().__init__(message)
+        self.code = code
+        self.context = context
+        
 
 def calculate(first, op, second):
     if op == '+':
@@ -11,27 +14,54 @@ def calculate(first, op, second):
         return first * second
     elif op == '/':
         if second == 0:
-            raise ZeroDivisionError("division by zero")
+            raise CalculationError(
+                code="DIVISION_BY_ZERO",
+                message="division by zero",
+                first=first,
+                second=second
+            )
         return first / second
     else:
-        raise CalculationError(f"unknown operator: {op}")
+        raise CalculationError(
+            code="UNKNOWN_OPERATOR",
+            message="unknown_operator",
+            op=op
+        )
     
     
 def parse_input(user_input: str):
     parts = user_input.split()
     
     if len(parts) != 3:
-        raise CalculationError("format must be: number operator number")
+        raise CalculationError(
+            code="INVALID_FORMAT",
+            message="format must be: number operator number",
+            input=user_input
+        )
     
     try:
         first = float(parts[0])
         second = float(parts[2])
     except ValueError as e:
-        raise CalculationError("invalid number") from e
+        raise CalculationError(
+            code="INVALID_NUMBER",
+            message="invalid number",
+            input=user_input
+        ) from e
     
     op = parts[1]
     
     return first, op, second
+
+def format_error(e: CalculationError) -> str:
+    messages = {
+        "INVALID_FORMAT": "入力形式が正しくありません（例: 2 + 3)",
+        "INVALID_NUMBER": "数値として認識できません",
+        "UNKNOWN_OPERATOR": f"未対応の演算子です: {e.context.get('op')}",
+        "DIVISION_BY_ZERO": "ゼロで割ることはできません"
+    }
+    
+    return messages.get(e.code, f"不明なエラー: {e}")
 
 
 def main():
@@ -50,9 +80,7 @@ def main():
             first, op, second = parse_input(user_input)
             result = calculate(first, op, second)
         except CalculationError as e:
-            print(f"Input Error: {e}")
-        except ZeroDivisionError as e:
-            print(f"Math Error: {e}")
+            print("Error", format_error(e))
         else:
             print(first, op, second, "=", result)
             
