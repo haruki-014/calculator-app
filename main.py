@@ -5,28 +5,35 @@ class CalculationError(Exception):
         self.context = context
         
 
+def safe_div(first, second):
+    if second == 0:
+        raise CalculationError(
+            code="DIVISION_BY_ZERO",
+            message="division by zero",
+            first=first,
+            second=second
+        )
+    return first / second
+    
+
+OPERATORS = {
+    "+": lambda a, b: a + b,
+    "-": lambda a, b: a - b,
+    "*": lambda a, b: a * b,
+    "/": safe_div,
+    
+}
+
+
 def calculate(first, op, second):
-    if op == '+':
-        return first + second
-    elif op == '-':
-        return first - second
-    elif op == '*':
-        return first * second
-    elif op == '/':
-        if second == 0:
-            raise CalculationError(
-                code="DIVISION_BY_ZERO",
-                message="division by zero",
-                first=first,
-                second=second
-            )
-        return first / second
-    else:
+    if op not in OPERATORS:
         raise CalculationError(
             code="UNKNOWN_OPERATOR",
-            message="unknown_operator",
+            message="unknwon_operator",
             op=op
         )
+    
+    return OPERATORS[op](first, second)
     
     
 def parse_input(user_input: str):
