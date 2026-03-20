@@ -30,6 +30,27 @@ def safe_mod(first, second):
     return first % second
 
 
+def process_power(tokens):
+    
+    result = tokens[:]
+    i = len(result) - 2
+    
+    while i > 0:
+        if result[i] == "^":
+            left = result[i-1]
+            right = result[i+1]
+            
+            value = left ** right
+            
+            result[i-1:i+2] = [value]
+            
+            i -= 2
+        else:
+            i -= 1
+            
+    return result
+
+
 def process_high_priority(tokens):
     
     result = []
@@ -39,7 +60,7 @@ def process_high_priority(tokens):
         
         token = tokens[i]
         
-        if token in {"*", "/", "^", "%"}:
+        if token in {"*", "/", "%"}:
             
             prev = result.pop()
             next_value = tokens[i+1]
@@ -69,6 +90,7 @@ OPERATORS = {
 
 def calculate(tokens):
     
+    tokens = process_power(tokens)
     tokens = process_high_priority(tokens)
     
     result = tokens[0]
