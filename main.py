@@ -37,10 +37,26 @@ def process_power(tokens):
     
     while i > 0:
         if result[i] == "^":
-            left = result[i-1]
-            right = result[i+1]
+            try:
+                left = result[i-1]
+                right = result[i+1]
+            except IndexError as e:
+                raise CalculationError(
+                    code="INVALID_EXPRESSION",
+                    message="invalid_expression",
+                    tokens=result,
+                    position=i
+                )
             
-            value = left ** right
+            try:
+                value = left ** right
+            except Exception as e:
+                raise CalculationError(
+                    code="EVALUATION_ERROR",
+                    message="evaluation_error",
+                    left=left,
+                    right=right
+                )
             
             result[i-1:i+2] = [value]
             
@@ -62,10 +78,29 @@ def process_high_priority(tokens):
         
         if token in {"*", "/", "%"}:
             
-            prev = result.pop()
-            next_value = tokens[i+1]
+            try:
+                prev = result.pop()
+                next_value = tokens[i+1]
+            except (KeyError, IndexError):
+                raise CalculationError(
+                    code="INVALID_EXPRESSION",
+                    message="invalid high priority expression",
+                    tokens=tokens,
+                    position=i
+                )
             
-            value = OPERATORS[token](prev, next_value)
+            try:
+                value = OPERATORS[token](prev, next_value)
+            except CalculationError:
+                raise
+            except Exception as e:
+                raise CalculationError(
+                    code="EVALUATION_ERROR",
+                    message="operation failed",
+                    operator=token,
+                    left=prev,
+                    right=next_value
+                )
             
             result.append(value)
             i += 2
@@ -153,7 +188,9 @@ def format_error(e: CalculationError) -> str:
         "INVALID_FORMAT": "入力形式が正しくありません（例: 2 + 3)",
         "INVALID_NUMBER": "数値として認識できません",
         "UNKNOWN_OPERATOR": f"未対応の演算子です: {e.context.get('op')}",
-        "DIVISION_BY_ZERO": "ゼロで割ることはできません"
+        "DIVISION_BY_ZERO": "ゼロで割ることはできません",
+        "INVALID_EXPRESSION": "式が正しくありません",
+        "EVALUATION_ERROR": "計算に失敗しました",
     }
     
     return messages.get(e.code, f"不明なエラー: {e}")
