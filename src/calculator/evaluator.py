@@ -1,5 +1,8 @@
-from .errors import CalculationError
+from .errors import ErrorCode, CalculationError
 from .operators import OPERATORS
+
+
+    
 
 def process_power(tokens):
     
@@ -13,7 +16,7 @@ def process_power(tokens):
                 right = result[i+1]
             except IndexError as e:
                 raise CalculationError(
-                    code="INVALID_EXPRESSION",
+                    code=ErrorCode.INVALID_EXPRESSION,
                     message="invalid_expression",
                     tokens=result,
                     position=i
@@ -23,7 +26,7 @@ def process_power(tokens):
                 value = left ** right
             except Exception as e:
                 raise CalculationError(
-                    code="EVALUATION_ERROR",
+                    code=ErrorCode.EVALUATION_ERROR,
                     message="evaluation_error",
                     left=left,
                     right=right
@@ -54,7 +57,7 @@ def process_high_priority(tokens):
                 next_value = tokens[i+1]
             except (KeyError, IndexError):
                 raise CalculationError(
-                    code="INVALID_EXPRESSION",
+                    code=ErrorCode.INVALID_EXPRESSION,
                     message="invalid high priority expression",
                     tokens=tokens,
                     position=i
@@ -66,7 +69,7 @@ def process_high_priority(tokens):
                 raise
             except Exception as e:
                 raise CalculationError(
-                    code="EVALUATION_ERROR",
+                    code=ErrorCode.EVALUATION_ERROR,
                     message="operation failed",
                     operator=token,
                     left=prev,
@@ -97,7 +100,7 @@ def calculate(tokens):
         if op not in OPERATORS:
             
             raise CalculationError(
-                code="UNKNOWN_OPERATOR",
+                code=ErrorCode.UNKNOWN_OPERATOR,
                 message="unknown_operator",
                 op=op
             )

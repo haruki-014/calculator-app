@@ -1,10 +1,10 @@
-from .errors import CalculationError
+from .errors import ErrorCode, CalculationError
 
 def safe_div(first, second):
     
     if second == 0:
         raise CalculationError(
-            code="DIVISION_BY_ZERO",
+            code=ErrorCode.DIVISION_BY_ZERO,
             message="division by zero",
             first=first,
             second=second
@@ -15,7 +15,7 @@ def safe_mod(first, second):
     
     if second == 0:
         raise CalculationError(
-            code="DIVISION_BY_ZERO",
+            code=ErrorCode.DIVISION_BY_ZERO,
             message="division by zero",
             first=first,
             second=second

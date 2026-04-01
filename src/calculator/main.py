@@ -9,11 +9,13 @@ def format_error(e: CalculationError) -> str:
     messages = {
         ErrorCode.INVALID_FORMAT: "入力形式が正しくありません（例: 2 + 3)",
         ErrorCode.INVALID_NUMBER: "数値として認識できません",
-        ErrorCode.UNKNOWN_OPERATOR: f"未対応の演算子です: {e.context.get('op')}",
         ErrorCode.DIVISION_BY_ZERO: "ゼロで割ることはできません",
         ErrorCode.INVALID_EXPRESSION: "式が正しくありません",
         ErrorCode.EVALUATION_ERROR: "計算に失敗しました",
     }
+    
+    if e.code == ErrorCode.UNKNOWN_OPERATOR:
+        return f"未対応の演算子です: {e.context.get('op')}"
     
     return messages.get(e.code, f"不明なエラー: {e}")
 

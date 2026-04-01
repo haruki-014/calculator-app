@@ -1,4 +1,4 @@
-from .errors import CalculationError
+from .errors import ErrorCode, CalculationError
 
 def parse_input(user_input: str):
     
@@ -7,7 +7,7 @@ def parse_input(user_input: str):
     if len(parts) < 3 or len(parts) % 2 == 0:
         
         raise CalculationError(
-            code="INVALID_FORMAT",
+            code=ErrorCode.INVALID_FORMAT,
             message="invalid expression",
             input=user_input
         )
@@ -22,7 +22,7 @@ def parse_input(user_input: str):
                 tokens.append(float(part))
             except ValueError as e:
                 raise CalculationError(
-                    code="INVALID_NUMBER",
+                    code=ErrorCode.INVALID_NUMBER,
                     message="invalid number",
                     input=user_input
                 ) from e
