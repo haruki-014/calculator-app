@@ -1,6 +1,16 @@
+from enum import Enum
+
+class ErrorCode(str, Enum):
+    DIVISION_BY_ZERO = "DIVISION_BY_ZERO"
+    INVALID_FORMAT = "INVALID_FORMAT"
+    INVALID_NUMBER = "INVALID_NUMBER"
+    UNKNOWN_OPERATOR = "UNKNOWN_OPERATOR"
+    INVALID_EXPRESSION = "INVALID_EXPRESSION"
+    EVALUATION_ERROR = "EVALUATION_ERROR"
+
 class CalculationError(Exception):
     
-    def __init__(self, code: str, message: str, **context):
+    def __init__(self, code: ErrorCode, message: str, **context):
         
         super().__init__(message)
         self.code = code
@@ -185,12 +195,12 @@ def parse_input(user_input: str):
 def format_error(e: CalculationError) -> str:
     
     messages = {
-        "INVALID_FORMAT": "入力形式が正しくありません（例: 2 + 3)",
-        "INVALID_NUMBER": "数値として認識できません",
-        "UNKNOWN_OPERATOR": f"未対応の演算子です: {e.context.get('op')}",
-        "DIVISION_BY_ZERO": "ゼロで割ることはできません",
-        "INVALID_EXPRESSION": "式が正しくありません",
-        "EVALUATION_ERROR": "計算に失敗しました",
+        ErrorCode.INVALID_FORMAT: "入力形式が正しくありません（例: 2 + 3)",
+        ErrorCode.INVALID_NUMBER: "数値として認識できません",
+        ErrorCode.UNKNOWN_OPERATOR: f"未対応の演算子です: {e.context.get('op')}",
+        ErrorCode.DIVISION_BY_ZERO: "ゼロで割ることはできません",
+        ErrorCode.INVALID_EXPRESSION: "式が正しくありません",
+        ErrorCode.EVALUATION_ERROR: "計算に失敗しました",
     }
     
     return messages.get(e.code, f"不明なエラー: {e}")
