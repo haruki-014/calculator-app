@@ -1,44 +1,19 @@
 import pytest
 from calculator.main import calculate, parse_input, CalculationError
 
+@pytest.mark.parametrize("expr, error_code", [
+    ("10 / 0", "DIVISION_BY_ZERO"),
+    ("11 % 0", "DIVISION_BY_ZERO"),
+    ("2 + 3 -", "INVALID_FORMAT"),
+    ("3 + 7 + a", "INVALID_NUMBER"),
+    ("2 + 3 & 5", "UNKNOWN_OPERATOR")
+])
 
-def test_division_by_zero():
-    tokens = parse_input("10 / 0")
+
+def test_errors(expr, error_code):
     
     with pytest.raises(CalculationError) as e:
+        tokens = parse_input(expr)
         calculate(tokens)
         
-    assert e.value.code == "DIVISION_BY_ZERO"
-    
-def test_mod_by_zero():
-    tokens = parse_input("10 % 0")
-    
-    with pytest.raises(CalculationError) as e:
-        calculate(tokens)
-        
-    assert e.value.code == "DIVISION_BY_ZERO"
-    
-def test_invalid_format():
-    
-    with pytest.raises(CalculationError) as e:
-        parse_input("2 + 3 -")
-        
-    assert e.value.code == "INVALID_FORMAT"
-    
-def test_invalid_number():
-    
-    with pytest.raises(CalculationError) as e:
-        parse_input("3 + 7 + a")
-        
-    assert e.value.code == "INVALID_NUMBER"
-    
-def test_unknown_operator():
-    tokens = parse_input("2 + 3 & 5")
-    
-    with pytest.raises(CalculationError) as e:
-        calculate(tokens)
-        
-    assert e.value.code == "UNKNOWN_OPERATOR"
-    
-    
-        
+    assert e.value.code == error_code
