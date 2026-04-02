@@ -8,7 +8,7 @@ from calculator.main import calculate, parse_input
     ("11 % 3", 2),
     ("2 + 3 * 4", 14),
     ("2 ^ 3 ^ 2", 512),
-    ("2 * 3 + 2 ^ 3", 14) 
+    ("2 * 3 + 2 ^ 3", 14)
 ])
 
 

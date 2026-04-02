@@ -1,6 +1,30 @@
 from .errors import ErrorCode, CalculationError
 from .operators import OPERATORS
 
+
+def validate_parentheses(tokens):
+    
+    count = 0
+    
+    for token in tokens:
+        
+        if token == "(":
+            count += 1
+        elif token == ")":
+            count -= 1
+        
+        if count < 0:
+            raise CalculationError(
+                code=ErrorCode.INVALID_EXPRESSION,
+                message="unmatched closing parentheses"
+            )
+            
+    if count > 0:
+        raise CalculationError(
+            code=ErrorCode.INVALID_EXPRESSION,
+            message="unmatched opening parentheses"
+        )
+
 def find_innermost_parentheses(tokens):
     
     start = None
@@ -9,22 +33,8 @@ def find_innermost_parentheses(tokens):
         
         if token == "(":
             start = i
-        elif token == ")":
-            if start is None:
-                raise CalculationError(
-                    code=ErrorCode.INVALID_EXPRESSION,
-                    message="unmatched closing parentheses",
-                    position=i
-                )
-            
+        elif token == ")":    
             return start, i
-        
-    if start is not None:
-        raise CalculationError(
-            code=ErrorCode.INVALID_EXPRESSION,
-            message="unmatched opening parentheses",
-            position=start
-        )
         
     return None
 
@@ -140,6 +150,8 @@ def process_high_priority(tokens):
 
 def calculate(tokens):
     
+    validate_parentheses(tokens)
+    
     tokens = process_parentheses(tokens)
     tokens = process_power(tokens)
     tokens = process_high_priority(tokens)
@@ -156,6 +168,13 @@ def calculate(tokens):
                 code=ErrorCode.UNKNOWN_OPERATOR,
                 message="unknown_operator",
                 op=op
+            )
+            
+        if i + 1 >= len(tokens):
+            raise CalculationError(
+                code=ErrorCode.INVALID_FORMAT,
+                message="missing operand",
+                tokens=tokens
             )
             
         next_value = tokens[i+1]
