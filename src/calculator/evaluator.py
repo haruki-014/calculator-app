@@ -1,7 +1,59 @@
 from .errors import ErrorCode, CalculationError
 from .operators import OPERATORS
 
+def find_innermost_parentheses(tokens):
+    
+    start = None
+    
+    for i, token in enumerate(tokens):
+        
+        if token == "(":
+            start = i
+        elif token == ")":
+            if start is None:
+                raise CalculationError(
+                    code=ErrorCode.INVALID_EXPRESSION,
+                    message="unmatched closing parentheses",
+                    position=i
+                )
+            
+            return start, i
+        
+    if start is not None:
+        raise CalculationError(
+            code=ErrorCode.INVALID_EXPRESSION,
+            message="unmatched opening parentheses",
+            position=start
+        )
+        
+    return None
 
+      
+def process_parentheses(tokens):
+    
+    result = tokens[:]
+    
+    while "(" in result:
+        found = find_innermost_parentheses(result)
+        
+        if found is None:
+            break
+        
+        start, end = found
+        
+        inner = result[start+1:end]
+        
+        if not inner:
+            raise CalculationError(
+                code=ErrorCode.INVALID_EXPRESSION,
+                message="empty parentheses"
+            )
+            
+        value = calculate(inner)
+        
+        result[start:end+1] = [value]
+    
+    return result
     
 
 def process_power(tokens):
@@ -88,6 +140,7 @@ def process_high_priority(tokens):
 
 def calculate(tokens):
     
+    tokens = process_parentheses(tokens)
     tokens = process_power(tokens)
     tokens = process_high_priority(tokens)
     
@@ -97,8 +150,8 @@ def calculate(tokens):
     while i < len(tokens):
         
         op = tokens[i]
-        if op not in OPERATORS:
-            
+        
+        if op not in OPERATORS:         
             raise CalculationError(
                 code=ErrorCode.UNKNOWN_OPERATOR,
                 message="unknown_operator",
