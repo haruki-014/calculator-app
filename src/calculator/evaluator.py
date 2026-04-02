@@ -1,6 +1,68 @@
 from .errors import ErrorCode, CalculationError
 from .operators import OPERATORS
 
+# 単行演算子と二項演算子を分離
+def handle_unary_minus(tokens):
+    
+    result = []
+    i = 0
+    
+    # 未解析トークンがある限り続行
+    while i < len(tokens):
+        token = tokens[i]
+        
+        # トークンがマイナスである
+        # かつ
+        # 初項であるまたは手前のトークンが演算子または(であれば
+        if token == "-" and (
+            i == 0 or tokens[i-1] in {"+", "-", "*", "/", "%", "^", "("}
+        ):
+            # トークンの最終項がマイナスであればエラー
+            if i + 1 >= len(tokens):
+                raise CalculationError(
+                    code=ErrorCode.INVALID_FORMAT,
+                    message="invalid unary minus",
+                    tokens=tokens
+                )
+            
+            # 次の項を変数に用意
+            next_token = tokens[i+1]
+            
+            # 次の項が整数または浮動小数点であれば
+            # 符号を逆にし返すリストに追加
+            # 開始位置を次の演算子または(、)に移動
+            if isinstance(next_token, (int, float)):
+                result.append(-next_token)
+                i += 2
+                continue
+            
+            # 次の項が(であれば
+            # 括弧内に-1.0が掛ける
+            # 開始位置を
+            elif next_token == "(":
+                result.append(-1.0)
+                result.append("*")
+                i += 1
+                continue
+            
+            # 次の項が数字でも(でもなければエラー
+            else:
+                raise CalculationError(
+                    code=ErrorCode.INVALID_FORMAT,
+                    message="invalid unary minus operand",
+                    value=next_token
+                )
+        
+        # トークンがマイナスでもなく
+        # 初項または演算子でもなければ
+        # 返すリストにそのまま追加
+        # 開始位置を横に移動    
+        else:
+            result.append(token)
+            i += 1
+            
+    return result           
+
 
 def validate_parentheses(tokens):
     
@@ -151,6 +213,8 @@ def process_high_priority(tokens):
 def calculate(tokens):
     
     validate_parentheses(tokens)
+    
+    tokens = handle_unary_minus(tokens)
     
     tokens = process_parentheses(tokens)
     tokens = process_power(tokens)
