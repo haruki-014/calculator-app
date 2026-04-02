@@ -1,10 +1,11 @@
 from .errors import ErrorCode, CalculationError
+from .tokenize import tokenize
 
 def parse_input(user_input: str):
     
-    parts = user_input.split()
+    parts = tokenize(user_input)
     
-    if len(parts) < 3:
+    if len(parts) < 1:
         
         raise CalculationError(
             code=ErrorCode.INVALID_FORMAT,
@@ -19,7 +20,7 @@ def parse_input(user_input: str):
         if part in {"(", ")"}:
             tokens.append(part)
         
-        elif part in {"+", "-", "*", "/", "%"}:
+        elif part in {"+", "-", "*", "/", "%", "^"}:
             tokens.append(part)
             
         else:
