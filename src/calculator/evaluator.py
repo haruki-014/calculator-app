@@ -214,10 +214,9 @@ def calculate(tokens):
     
     validate_parentheses(tokens)
     
-    tokens = handle_unary_minus(tokens)
-    
     tokens = process_parentheses(tokens)
     tokens = process_power(tokens)
+    tokens = handle_unary_minus(tokens)
     tokens = process_high_priority(tokens)
     
     result = tokens[0]
