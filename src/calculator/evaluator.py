@@ -1,6 +1,7 @@
 from .errors import ErrorCode, CalculationError
 from .operators import OPERATORS
 
+
 # 単行演算子と二項演算子を分離
 def handle_unary_minus(tokens):
     
@@ -17,7 +18,7 @@ def handle_unary_minus(tokens):
         if token == "-" and (
             i == 0 or tokens[i-1] in {"+", "-", "*", "/", "%", "^", "("}
         ):
-            # トークンの最終項がマイナスであればエラー
+            # トークンの最終項がマイナスであれば形式エラー
             if i + 1 >= len(tokens):
                 raise CalculationError(
                     code=ErrorCode.INVALID_FORMAT,
@@ -32,7 +33,9 @@ def handle_unary_minus(tokens):
             # 符号を逆にし返すリストに追加
             # 開始位置を次の演算子または(、)に移動
             if isinstance(next_token, (int, float)):
-                result.append(-next_token)
+                result.append(-1.0)
+                result.append("*")
+                result.append(next_token)
                 i += 2
                 continue
             
@@ -45,7 +48,7 @@ def handle_unary_minus(tokens):
                 i += 1
                 continue
             
-            # 次の項が数字でも(でもなければエラー
+            # 次の項が数字または(でなければ形式エラー
             else:
                 raise CalculationError(
                     code=ErrorCode.INVALID_FORMAT,
@@ -64,6 +67,7 @@ def handle_unary_minus(tokens):
     return result           
 
 
+# 括弧が組として成立しているか
 def validate_parentheses(tokens):
     
     count = 0
@@ -75,17 +79,20 @@ def validate_parentheses(tokens):
         elif token == ")":
             count -= 1
         
+        # 閉じ括弧が開き括弧より多くなった時点で文法エラー
         if count < 0:
             raise CalculationError(
                 code=ErrorCode.INVALID_EXPRESSION,
                 message="unmatched closing parentheses"
             )
-            
+    
+    # 最終的に開き括弧が閉じ括弧より多い場合文法エラー       
     if count > 0:
         raise CalculationError(
             code=ErrorCode.INVALID_EXPRESSION,
             message="unmatched opening parentheses"
         )
+
 
 def find_innermost_parentheses(tokens):
     
@@ -93,6 +100,9 @@ def find_innermost_parentheses(tokens):
     
     for i, token in enumerate(tokens):
         
+        # 左から読み込み最も内側の開き括弧を見つける
+        # 最も内側の開き括弧に対応した閉じ括弧を見つける
+        # 最も内側の括弧の組みのインデックスのタプルを返す
         if token == "(":
             start = i
         elif token == ")":    
@@ -100,11 +110,16 @@ def find_innermost_parentheses(tokens):
         
     return None
 
-      
+
+# 括弧全体の処理     
 def process_parentheses(tokens):
     
     result = tokens[:]
     
+    # トークンをコピーした中に開き括弧が見つかる限り
+    # 最も内側の括弧の組みを見つける関数を呼び出し
+    # 式を計算する関数を括弧内の式に呼び出し
+    # 計算結果を( + 元の式　+ ) と入れ替える
     while "(" in result:
         found = find_innermost_parentheses(result)
         
@@ -115,6 +130,7 @@ def process_parentheses(tokens):
         
         inner = result[start+1:end]
         
+        # 括弧内に式が無ければ文法エラー
         if not inner:
             raise CalculationError(
                 code=ErrorCode.INVALID_EXPRESSION,
@@ -123,14 +139,20 @@ def process_parentheses(tokens):
             
         value = calculate(inner)
         
+        # 括弧部分に括弧内計算結果を代入
         result[start:end+1] = [value]
     
     return result
     
 
+# 累乗全体の処理
 def process_power(tokens):
     
     result = tokens[:]
+    
+    # 累乗は右から処理するため
+    # インデックスを最も右に存在する演算子に設定
+    # (単行演算子は処理済みの実装のため)
     i = len(result) - 2
     
     while i > 0:
