@@ -156,7 +156,11 @@ def process_power(tokens):
     i = len(result) - 2
     
     while i > 0:
+        
+        # 累乗の演算子が見つかる限り実行
         if result[i] == "^":
+            
+            # 左右に要素が無ければインデックスエラー
             try:
                 left = result[i-1]
                 right = result[i+1]
@@ -168,6 +172,8 @@ def process_power(tokens):
                     position=i
                 )
             
+            # 左右の数字を計算
+            # できなければ計算エラー
             try:
                 value = left ** right
             except Exception as e:
@@ -187,6 +193,7 @@ def process_power(tokens):
     return result
 
 
+# 掛け算、割り算、余り計算を先に計算
 def process_high_priority(tokens):
     
     result = []
