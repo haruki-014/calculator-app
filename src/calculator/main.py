@@ -35,8 +35,8 @@ def main():
             break
 
         try:
-            tokens = parse_input(user_input)
-            result = calculate(tokens)
+            node = parse_input(user_input)
+            result = calculate(node)
         except CalculationError as e:
             print("Error", format_error(e))
         else:

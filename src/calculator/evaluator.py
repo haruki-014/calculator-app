@@ -1,7 +1,58 @@
 from .errors import ErrorCode, CalculationError
 from .operators import OPERATORS
+from .ast_nodes import NumberNode, BinaryOpNode, UnaryOpNode
+
+DEBUG = True
+
+def calculate(ast, debug=None):
+    
+    return evaluate(ast, debug=debug)
 
 
+def evaluate(node, debug=None, depth=0):
+    
+    if debug is None:
+        debug = DEBUG
+        
+    indent = "  " * depth
+    
+    if debug:
+        print(f"{indent}Evaluating: {node}")
+    
+    if isinstance(node, NumberNode):
+        if debug:
+            print(f"{indent} -> {node.value}")
+            
+        return node.value
+    
+    elif isinstance(node, UnaryOpNode):
+        value = evaluate(node.operand, debug, depth+1)
+        
+        if node.op == "-":
+            value = -value
+            
+        if debug:
+            print(f"{indent} -> {value}")
+            
+        return value
+        
+    elif isinstance(node, BinaryOpNode):
+        left = evaluate(node.left, debug, depth+1)
+        right = evaluate(node.right, debug, depth+1)
+        
+        result = OPERATORS[node.op](left, right)
+        
+        if debug:
+            print(f"{indent} -> {left} {node.op} {right} = {result}")
+        
+        return result
+    
+    else:
+        raise Exception("Unkown node")
+
+
+# 旧計算処理
+"""
 # 単行演算子と二項演算子を分離
 def handle_unary_minus(tokens):
     
@@ -274,4 +325,6 @@ def calculate(tokens):
         result = OPERATORS[op](result, next_value)
         i += 2
     
-    return result        
+    return result    
+    
+"""    
