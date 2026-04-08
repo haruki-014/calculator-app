@@ -7,6 +7,9 @@ class ErrorCode(str, Enum):
     UNKNOWN_OPERATOR = "UNKNOWN_OPERATOR"
     INVALID_EXPRESSION = "INVALID_EXPRESSION"
     EVALUATION_ERROR = "EVALUATION_ERROR"
+    
+    INVALID_AST = "INVALID_AST"
+    UNKNOWN_NODE = "UNKNOWN_NODE"
 
 class CalculationError(Exception):
     

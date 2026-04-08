@@ -1,4 +1,4 @@
-
+from .errors import ErrorCode, CalculationError
 
 
 class ASTNode:
@@ -42,6 +42,13 @@ class NumberNode(ASTNode):
 class BinaryOpNode(ASTNode):
     
     def __init__(self, left, op, right):
+        if left is None or right is None:
+            raise CalculationError(
+                code=ErrorCode.INVALID_AST,
+                message="BinaryOpNode requires left and right",
+                op=op
+            )
+        
         self.left = left
         self.op = op
         self.right = right
@@ -53,6 +60,12 @@ class BinaryOpNode(ASTNode):
         return f"BinaryOp({self.op})"
     
     def _children(self):
+        if self.left is None or self.right is None:
+            raise CalculationError(
+                code=ErrorCode.INVALID_AST,
+                message="Invalid BinaryOpNode structure"
+            )
+        
         return [self.left, self.right]
         
         
@@ -60,6 +73,13 @@ class BinaryOpNode(ASTNode):
 class UnaryOpNode(ASTNode):
     
     def __init__(self, op, operand):
+        if operand is None:
+            raise CalculationError(
+                code=ErrorCode.INVALID_AST,
+                message="UnaryOpNode requires operand",
+                op=op
+            )
+                
         self.op = op
         self.operand = operand
         

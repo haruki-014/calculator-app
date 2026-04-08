@@ -61,8 +61,12 @@ def evaluate(node, debug=None, depth=0):
         return result
     
     else:
-        raise Exception("Unkown node")
-
+        raise CalculationError(
+            code=ErrorCode.UNKNOWN_NODE,
+            message="Unknown AST node",
+            node_type=type(node).__name__
+        )
+    
 
 # 旧計算処理
 """
