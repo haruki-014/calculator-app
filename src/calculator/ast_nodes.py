@@ -3,15 +3,22 @@ from .errors import ErrorCode, CalculationError
 
 class ASTNode:
     
-    def pretty(self, depth=0):
+    def pretty(self, prefix="", is_last=True):
         
-        # 骨組みを作成
-        indent = "  " * depth
-        result = f"{indent} {self._label()}\n"
+        branch = "└── " if is_last else "├── "
         
-        # 子ノードにも再帰
-        for child in self._children():
-            result += child.pretty(depth+1)
+        result = f"{prefix}{branch}{self._label()}\n"
+        
+        if is_last:
+            new_prefix = prefix + "  "
+        else:
+            new_prefix = prefix + "│   "
+            
+        children = self._children()
+        
+        for i, child in enumerate(children):
+            is_last_child = (i == len(children) - 1)
+            result += child.pretty(new_prefix, is_last_child)
             
         return result
     
