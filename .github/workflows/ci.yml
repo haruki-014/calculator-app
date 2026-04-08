@@ -1,0 +1,44 @@
+
+
+name: CI
+
+on:
+    push:
+        branches: [ develop ]
+    pull_request:
+        branches: [ main, develop ]
+
+jobs:
+    test:
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                python-version: [ "3.12" ]
+
+        steps:
+            - name: リポジトリ取得
+              uses: actions/checkout@v4
+
+            - name: Pythonセットアップ
+              uses: actions/setup-python@v5
+              with:
+                python-version: ${{ matrix.python-version }}
+
+            - name: uvインストール
+              run: pip install uv
+
+            - name: 依存関係インストール
+              run: uv sync
+
+            - name: Lint(ruff)
+              run: uv run ruff check .
+
+            - name: Formatチェック
+              run: uv run ruff format --check .
+
+            - name: テスト実行
+              run: uv run pytest
+
+            - name: カバレッジ実行
+              run: uv run pytest --cov=calculator --cov-report=term
