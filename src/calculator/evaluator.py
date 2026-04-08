@@ -4,7 +4,20 @@ from .ast_nodes import NumberNode, BinaryOpNode, UnaryOpNode
 
 DEBUG = True
 
-def calculate(ast, debug=None):
+class DebugMode:
+    OFF = 0
+    EVAL = 1
+    AST = 2
+    ALL = 3
+    
+
+def calculate(ast, debug=DebugMode.AST):
+    
+    if debug in (DebugMode.AST, DebugMode.ALL):
+        
+        print("\n==== AST ====\n")
+        print(ast.pretty())
+        print("====     ====\n")     
     
     return evaluate(ast, debug=debug)
 
