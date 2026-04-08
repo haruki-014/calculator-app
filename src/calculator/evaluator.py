@@ -4,69 +4,69 @@ from .ast_nodes import NumberNode, BinaryOpNode, UnaryOpNode
 
 DEBUG = True
 
+
 class DebugMode:
     OFF = 0
     EVAL = 1
     AST = 2
     ALL = 3
-    
+
 
 def calculate(ast, debug=DebugMode.AST):
-    
+
     if debug in (DebugMode.AST, DebugMode.ALL):
-        
         print("\n==== AST ====\n")
         print(ast.pretty())
-        print("====     ====\n")     
-    
+        print("====     ====\n")
+
     return evaluate(ast, debug=debug)
 
 
 def evaluate(node, debug=None, depth=0):
-    
+
     if debug is None:
         debug = DEBUG
-        
+
     indent = "  " * depth
-    
+
     if debug:
         print(f"{indent}Evaluating: {node}")
-    
+
     if isinstance(node, NumberNode):
         if debug:
             print(f"{indent} -> {node.value}")
-            
+
         return node.value
-    
+
     elif isinstance(node, UnaryOpNode):
-        value = evaluate(node.operand, debug, depth+1)
-        
+        value = evaluate(node.operand, debug, depth + 1)
+
         if node.op == "-":
             value = -value
-            
+
         if debug:
             print(f"{indent} -> {value}")
-            
+
         return value
-        
+
     elif isinstance(node, BinaryOpNode):
-        left = evaluate(node.left, debug, depth+1)
-        right = evaluate(node.right, debug, depth+1)
-        
+        left = evaluate(node.left, debug, depth + 1)
+        right = evaluate(node.right, debug, depth + 1)
+
         result = OPERATORS[node.op](left, right)
-        
+
         if debug:
             print(f"{indent} -> {left} {node.op} {right} = {result}")
-        
+
         return result
-    
+
     else:
         raise CalculationError(
             code=ErrorCode.UNKNOWN_NODE,
             message="Unknown AST node",
-            node_type=type(node).__name__
+            node_type=type(node).__name__,
         )
-    
+
 
 # 旧計算処理
 """
@@ -344,4 +344,4 @@ def calculate(tokens):
     
     return result    
     
-"""    
+"""
