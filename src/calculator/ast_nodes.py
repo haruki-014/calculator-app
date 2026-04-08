@@ -51,7 +51,7 @@ class BinaryOpNode(ASTNode):
     def __init__(self, left, op, right):
         if left is None or right is None:
             raise CalculationError(
-                code=ErrorCode.INVALID_AST
+                code=ErrorCode.INVALID_AST,
                 message="BinaryOpNode requires left and right",
                 op=op
             )

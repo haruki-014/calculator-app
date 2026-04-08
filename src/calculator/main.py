@@ -1,5 +1,4 @@
 from .errors import ErrorCode, CalculationError
-from .operators import OPERATORS
 from .parser import parse_input
 from .evaluator import calculate
 
