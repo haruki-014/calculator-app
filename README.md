@@ -50,17 +50,23 @@ Pythonとプログラム構造の学習用に少しずつ機能追加してき�
 ### セットアップ
 
 ```bash
+cd calculator
 uv sync
 ```
 
 `uv.lock` を含めて管理しているので、依存関係を揃えやすい構成です。
 
-### 起動方法
-
-このプロジェクトは `src` レイアウトなので、CLI 起動時は `PYTHONPATH=src` を付けるのが確実です。
+### 起動方法。
 
 ```bash
-env PYTHONPATH=src uv run python -m calculator.main
+uv run calculator
+```
+
+### CLIとして使う場合
+
+```bash
+uv pip install -e .
+calculator
 ```
 
 終了する場合:
