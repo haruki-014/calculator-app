@@ -3,7 +3,6 @@ from .errors import ErrorCode, CalculationError
 
 class ASTNode:
     def pretty(self, prefix="", is_last=True):
-
         branch = "└── " if is_last else "├── "
 
         result = f"{prefix}{branch}{self._label()}\n"
@@ -36,7 +35,6 @@ class NumberNode(ASTNode):
         self.value = value
 
     def __repr__(self):
-
         return f"{self.value}"
 
     def _label(self):
@@ -93,3 +91,29 @@ class UnaryOpNode(ASTNode):
 
     def _children(self):
         return [self.operand]
+
+
+class VarNode(ASTNode):
+    def __init__(self, name):
+        self.name = name
+
+    def __repr__(self):
+        return self.name
+
+    def _label(self):
+        return f"Var({self.name})"
+
+
+class AssignNode(ASTNode):
+    def __init__(self, name, value):
+        self.name = name
+        self.value = value
+
+    def __repr__(self):
+        return f"{self.name} = {self.value}"
+
+    def _label(self):
+        return f"Assign({self.name})"
+
+    def _children(self):
+        return [self.value]
