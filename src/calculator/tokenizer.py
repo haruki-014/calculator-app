@@ -6,7 +6,6 @@ from .errors import ErrorCode, CalculationError
 
 
 def tokenize(user_input: str):
-
     tokens = []
     i = 0
     length = len(user_input)
@@ -37,13 +36,13 @@ def tokenize(user_input: str):
         elif char.isalpha():
             start = i
 
-            while i < length and char.isalpha():
+            while i < length and user_input[i].isalpha():
                 i += 1
 
             tokens.append(user_input[start:i])
             continue
 
-        elif char in "+-*/%^()":
+        elif char in "+-*/%^()=":
             tokens.append(char)
             i += 1
             continue

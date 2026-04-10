@@ -1,10 +1,10 @@
 from .errors import ErrorCode, CalculationError
 from .parser import parse_input
-from .evaluator import calculate
+from .evaluator import InterPreter
+from .ast_nodes import AssignNode
 
 
 def format_error(e: CalculationError) -> str:
-
     messages = {
         ErrorCode.INVALID_FORMAT: "入力形式が正しくありません（例: 2 + 3)",
         ErrorCode.INVALID_NUMBER: "数値として認識できません",
@@ -20,10 +20,11 @@ def format_error(e: CalculationError) -> str:
 
 
 def main():
-
     print("Simple Calculator")
     print("Format: number operator number (e.g. 2 + 3)")
     print("Type 'exit' to quit")
+
+    interpreter = InterPreter()
 
     while True:
         user_input = input(">> ")
@@ -34,11 +35,14 @@ def main():
 
         try:
             node = parse_input(user_input)
-            result = calculate(node)
+            result = interpreter.run(node)
         except CalculationError as e:
             print("Error", format_error(e))
         else:
-            print(user_input, "=", result)
+            if isinstance(node, AssignNode):
+                print(f"{node.name} = {result}")
+            else:
+                print(result)
 
 
 if __name__ == "__main__":

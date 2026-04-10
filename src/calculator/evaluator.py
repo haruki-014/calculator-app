@@ -1,6 +1,6 @@
 from .errors import ErrorCode, CalculationError
 from .operators import OPERATORS
-from .ast_nodes import NumberNode, BinaryOpNode, UnaryOpNode
+from .ast_nodes import NumberNode, BinaryOpNode, UnaryOpNode, VarNode, AssignNode
 
 DEBUG = True
 
@@ -12,18 +12,26 @@ class DebugMode:
     ALL = 3
 
 
+class InterPreter:
+    def __init__(self):
+        self.env = {}
+
+    def run(self, ast, debug=None):
+        return evaluate(ast, self.env, debug)
+
+
 def calculate(ast, debug=DebugMode.AST):
+    env = {}
 
     if debug in (DebugMode.AST, DebugMode.ALL):
         print("\n==== AST ====\n")
         print(ast.pretty())
         print("====     ====\n")
 
-    return evaluate(ast, debug=debug)
+    return evaluate(ast, env, debug=debug)
 
 
-def evaluate(node, debug=None, depth=0):
-
+def evaluate(node, env, debug=None, depth=0):
     if debug is None:
         debug = DEBUG
 
@@ -39,7 +47,7 @@ def evaluate(node, debug=None, depth=0):
         return node.value
 
     elif isinstance(node, UnaryOpNode):
-        value = evaluate(node.operand, debug, depth + 1)
+        value = evaluate(node.operand, env, debug, depth + 1)
 
         if node.op == "-":
             value = -value
@@ -50,8 +58,8 @@ def evaluate(node, debug=None, depth=0):
         return value
 
     elif isinstance(node, BinaryOpNode):
-        left = evaluate(node.left, debug, depth + 1)
-        right = evaluate(node.right, debug, depth + 1)
+        left = evaluate(node.left, env, debug, depth + 1)
+        right = evaluate(node.right, env, debug, depth + 1)
 
         result = OPERATORS[node.op](left, right)
 
@@ -59,6 +67,30 @@ def evaluate(node, debug=None, depth=0):
             print(f"{indent} -> {left} {node.op} {right} = {result}")
 
         return result
+
+    elif isinstance(node, VarNode):
+        if node.name not in env:
+            raise CalculationError(
+                code=ErrorCode.UNKNOWN_VARIABLE,
+                message="Undefined variable",
+                name=node.name,
+            )
+
+        value = env[node.name]
+
+        if debug:
+            print(f"{indent} -> {value}")
+
+        return value
+
+    elif isinstance(node, AssignNode):
+        value = evaluate(node.value, env, debug, depth + 1)
+        env[node.name] = value
+
+        if debug:
+            print(f"{indent} -> {node.name} = {value}")
+
+        return value
 
     else:
         raise CalculationError(

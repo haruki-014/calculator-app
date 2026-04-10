@@ -11,11 +11,11 @@ class ErrorCode(str, Enum):
 
     INVALID_AST = "INVALID_AST"
     UNKNOWN_NODE = "UNKNOWN_NODE"
+    UNKNOWN_VARIABLE = "UNKNOWN_VARIABLE"
 
 
 class CalculationError(Exception):
     def __init__(self, code: ErrorCode, message: str, **context):
-
         super().__init__(message)
         self.code = code
         self.context = context

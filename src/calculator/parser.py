@@ -1,25 +1,22 @@
 from .errors import ErrorCode, CalculationError
 from .tokenizer import tokenize
-from .ast_nodes import NumberNode, BinaryOpNode, UnaryOpNode
+from .ast_nodes import NumberNode, BinaryOpNode, UnaryOpNode, VarNode, AssignNode
 
 
 # AST実装
 class Parser:
     def __init__(self, tokens):
-
         self.tokens = tokens
         self.pos = 0
 
     # 現在見ているトークンを返す
     def current(self):
-
         if self.pos < len(self.tokens):
             return self.tokens[self.pos]
         return None
 
     # 次のトークンのインデックスを指定
     def eat(self):
-
         self.pos += 1
 
     """
@@ -30,8 +27,24 @@ class Parser:
     の順に再起評価
     """
 
-    def parse_expr(self):
+    def parse_statement(self):
+        if (
+            isinstance(self.current(), str)
+            and self.current().isidentifier()
+            and self.pos + 1 < len(self.tokens)
+            and self.tokens[self.pos + 1] == "="
+        ):
+            name = self.current()
+            self.eat()
+            self.eat()
 
+            value = self.parse_expr()
+
+            return AssignNode(name, value)
+
+        return self.parse_expr()
+
+    def parse_expr(self):
         node = self.parse_term()
 
         # nodeにプラスまたはマイナスが含まれる限り式を返す
@@ -51,7 +64,6 @@ class Parser:
         return node
 
     def parse_term(self):
-
         node = self.parse_unary()
 
         # nodeに*、/、%が含まれる限り式を返す
@@ -66,7 +78,6 @@ class Parser:
         return node
 
     def parse_unary(self):
-
         token = self.current()
 
         # トークンの先頭が単行演算子であった場合
@@ -89,7 +100,6 @@ class Parser:
         return self.parse_power()
 
     def parse_power(self):
-
         node = self.parse_factor()
 
         # 最右辺から順に評価されるよう右辺で
@@ -104,13 +114,16 @@ class Parser:
         return node
 
     def parse_factor(self):
-
         token = self.current()
 
         # トークンが単一の浮動小数点なら数字クラスにセット
         if isinstance(token, float):
             self.eat()
             return NumberNode(token)
+
+        if isinstance(token, str) and token.isidentifier():
+            self.eat()
+            return VarNode(token)
 
         if token == "(":
             self.eat()
@@ -140,7 +153,6 @@ class Parser:
 
 
 def parse_input(user_input: str):
-
     parts = tokenize(user_input)
     tokens = []
 
@@ -152,22 +164,25 @@ def parse_input(user_input: str):
         )
 
     for part in parts:
-        if part in {"+", "-", "*", "/", "%", "^", "(", ")"}:
+        if part in {"+", "-", "*", "/", "%", "^", "(", ")", "="}:
             tokens.append(part)
 
         else:
             try:
                 tokens.append(float(part))
-            except ValueError as e:
-                raise CalculationError(
-                    code=ErrorCode.INVALID_NUMBER,
-                    message="invalid number",
-                    input=user_input,
-                ) from e
+            except ValueError:
+                if part.isidentifier():
+                    tokens.append(part)
+                else:
+                    raise CalculationError(
+                        code=ErrorCode.INVALID_NUMBER,
+                        message="invalid number",
+                        input=user_input,
+                    )
 
     parser = Parser(tokens)
 
-    node = parser.parse_expr()
+    node = parser.parse_statement()
 
     if parser.current() is not None:
         raise CalculationError(
