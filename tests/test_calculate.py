@@ -1,5 +1,9 @@
 import pytest
-from calculator.main import calculate, parse_input
+from calculator.evaluator import InterPreter
+from calculator.parser import parse_input
+
+
+interpreter = InterPreter()
 
 
 @pytest.mark.parametrize(
@@ -14,8 +18,7 @@ from calculator.main import calculate, parse_input
     ],
 )
 def test_calcs(expr, expected):
-
-    tokens = parse_input(expr)
-    result = calculate(tokens)
+    node = parse_input(expr)
+    result = interpreter.run(node)
 
     assert result == expected
