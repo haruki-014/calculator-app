@@ -17,12 +17,10 @@ class InterPreter:
         self.env = {}
 
     def run(self, ast, debug=None):
-        return evaluate(ast, self.env, debug)
+        return calculate(ast, self.env, debug)
 
 
-def calculate(ast, debug=DebugMode.AST):
-    env = {}
-
+def calculate(ast, env, debug=DebugMode.AST):
     if debug in (DebugMode.AST, DebugMode.ALL):
         print("\n==== AST ====\n")
         print(ast.pretty())
